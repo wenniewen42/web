@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <title>Finding closest vacant roadside parking space system</title>
+    <style>
+        #map {
+            height: 500px;  /* 設置地圖容器的高度 */
+            width: 50%;    /* 設置地圖容器的寬度 */
+            float: left;
+        }
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .header-image {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: 500px;
+            width: 100%; /* 設置圖片的寬度為父容器的 80% */
+        }
+    </style>
+  </head>
+  <body>
+
+    <div class="container-fluid">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+          <a href="file:///C:/Users/User/Desktop/%E5%B0%88%E9%A1%8C/%E8%B3%87%E5%B7%A5%E5%B0%88%E9%A1%8C/%E7%AF%84%E4%BE%8B.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+            <span class="fs-4">Finding closest vacant roadside parking space system</span>
+          </a>
+    
+          <ul class="nav nav-pills">
+            <li class="nav-item"><a href="login.html" class="nav-link active" aria-current="page">Log in</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Functions</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Notice</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">FAQs</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+          </ul>
+        </header>
+
+        <!-- 添加圖片 -->
+        <img src="image/停車系統.jpg" alt="Descriptive Alt Text" class="header-image">
+        <!-- 這裡是用於顯示Google地圖的容器 -->
+        <div id="map"></div>
+        當前可用車位:
+      </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_11dC6Xawc4eM4qEHT8yHAqOmdu6Kcz8"></script>
+    <script>
+        // 用於保存空車位的數據
+        const parkingSpots = [
+            { lat: 24.97547990088665, lng: 121.24201985399917, title: "Parking Spot 1" },
+            { lat: 25.0328, lng: 121.5651, title: "Parking Spot 2" },
+            // 更多的空車位
+        ];
+       
+        const customIcon = {
+            url: 'image/p.png',  // 替換為自定義圖標路徑
+            scaledSize: new google.maps.Size(40, 40), // 調整圖標的大小
+            origin: new google.maps.Point(0, 0), // 原點位置
+            anchor: new google.maps.Point(15, 15) // 錨點位置
+        };
+
+        let directionsService;
+        let directionsRenderer;
+
+        // 初始化並添加地圖
+        function initMap() {
+            // 確認瀏覽器支持Geolocation API
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // 獲取用戶當前位置
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    // 創建地圖並顯示當前位置
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        center: pos,
+                        zoom: 15
+                    });
+
+                    directionsService = new google.maps.DirectionsService();
+                    directionsRenderer = new google.maps.DirectionsRenderer();
+                    directionsRenderer.setMap(map);
+                    
+                    // 添加標記
+                    var marker = new google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: "You are here!"
+                    });
+
+                    // 添加空車位標記
+                    parkingSpots.forEach(function(spot) {
+                        var marker = new google.maps.Marker({
+                            position: { lat: spot.lat, lng: spot.lng },
+                            map: map,
+                            title: spot.title,
+                            icon: customIcon
+                        });
+
+                        google.maps.event.addListener(marker, 'click', function() {
+                            calculateAndDisplayRoute(pos, spot);
+                        });
+                    });
+                }, function() {
+                    // 處理位置獲取失敗情況
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                // 瀏覽器不支持Geolocation API
+                handleLocationError(false, map.getCenter());
+            }
+        }
+        
+        // 計算並顯示路徑
+        function calculateAndDisplayRoute(start, end) {
+            directionsService.route(
+                {
+                    origin: start,
+                    destination: { lat: end.lat, lng: end.lng },
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                function(response, status) {
+                    if (status === google.maps.DirectionsStatus.OK) {
+                        directionsRenderer.setDirections(response);
+                    } else {
+                        window.alert('Directions request failed due to ' + status);
+                    }
+                }
+            );
+        }
+
+        // 處理位置獲取失敗情況
+        function handleLocationError(browserHasGeolocation, pos) {
+            alert(browserHasGeolocation ? 
+                  "Error: The Geolocation service failed." : 
+                  "Error: Your browser doesn't support geolocation.");
+        }
+        
+        // 加載地圖
+        window.onload = initMap;
+    </script>
+    
+    <script src="js/bootstrap.bundle.min.js"></script>
+ 
+  </body>
+</html>
